@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Auto Grayscale</string>
+    <string name="tagline">Keep your phone in grayscale. If you switch it off, it comes back after a delay.</string>
+
+    <string name="auto_grayscale">Auto grayscale</string>
+    <string name="status_on">On — enforcing grayscale</string>
+    <string name="status_off">Off</string>
+
+    <string name="reapply_after">Re-enable grayscale after</string>
+    <string name="reapply_hint">If grayscale is turned off, it is automatically turned back on after this delay.</string>
+
+    <string name="permission_title">Permission</string>
+    <string name="perm_granted">WRITE_SECURE_SETTINGS granted — ready to go.</string>
+    <string name="perm_missing">WRITE_SECURE_SETTINGS not granted. Use one of the options below.</string>
+    <string name="grant_via_shizuku">Grant via Shizuku</string>
+    <string name="allow_shizuku">Allow Shizuku access</string>
+    <string name="grant_via_root">Grant via root (su)</string>
+    <string name="adb_instructions">Or grant it once over ADB from a computer:</string>
+
+    <string name="need_permission">Grant WRITE_SECURE_SETTINGS first (see options below).</string>
+    <string name="granted">Permission granted.</string>
+    <string name="root_failed">Root grant failed (device not rooted?).</string>
+
+    <string name="notif_running">Enforcing grayscale</string>
+    <string name="notif_channel_name">Grayscale service</string>
+    <string name="notif_channel_desc">Keeps the grayscale enforcement service running.</string>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+</resources>
