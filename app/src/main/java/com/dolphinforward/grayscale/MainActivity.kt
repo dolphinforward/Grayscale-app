@@ -1,9 +1,12 @@
 package com.dolphinforward.grayscale
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -97,6 +100,9 @@ private fun MainScreen(modifier: Modifier = Modifier) {
     var hasPermission by remember { mutableStateOf(PermissionManager.hasWriteSecureSettings(context)) }
     var shizukuRunning by remember { mutableStateOf(PermissionManager.shizukuRunning()) }
     var shizukuReady by remember { mutableStateOf(PermissionManager.shizukuReady()) }
+    var ignoringBattery by remember {
+        mutableStateOf(PermissionManager.isIgnoringBatteryOptimizations(context))
+    }
 
     // Refresh permission/Shizuku state whenever we return to the foreground.
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -106,6 +112,7 @@ private fun MainScreen(modifier: Modifier = Modifier) {
                 hasPermission = PermissionManager.hasWriteSecureSettings(context)
                 shizukuRunning = PermissionManager.shizukuRunning()
                 shizukuReady = PermissionManager.shizukuReady()
+                ignoringBattery = PermissionManager.isIgnoringBatteryOptimizations(context)
                 enabled = prefs.enabled
             }
         }
@@ -228,6 +235,12 @@ private fun MainScreen(modifier: Modifier = Modifier) {
                             onClick = {
                                 PermissionManager.tryGrant(context)
                                 hasPermission = PermissionManager.hasWriteSecureSettings(context)
+                                Toast.makeText(
+                                    context,
+                                    if (hasPermission) stringRes(R.string.granted, context)
+                                    else stringRes(R.string.shizuku_failed, context),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) { Text(stringRes(R.string.grant_via_shizuku, context)) }
@@ -270,6 +283,48 @@ private fun MainScreen(modifier: Modifier = Modifier) {
                 }
             }
         }
+
+        // --- Background reliability (battery optimization) ---
+        Card {
+            Column(Modifier.padding(16.dp)) {
+                Text(
+                    stringRes(R.string.battery_title, context),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    if (ignoringBattery) stringRes(R.string.battery_ok, context)
+                    else stringRes(R.string.battery_explain, context),
+                    color = if (ignoringBattery) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (!ignoringBattery) {
+                    Spacer(Modifier.height(12.dp))
+                    Button(
+                        onClick = { requestIgnoreBatteryOptimizations(context) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringRes(R.string.battery_button, context)) }
+                }
+            }
+        }
+    }
+}
+
+@Suppress("BatteryLife")
+private fun requestIgnoreBatteryOptimizations(context: android.content.Context) {
+    val intent = Intent(
+        Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+        Uri.parse("package:${context.packageName}")
+    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    try {
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // Fall back to the general battery-optimization settings list.
+        context.startActivity(
+            Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 }
 

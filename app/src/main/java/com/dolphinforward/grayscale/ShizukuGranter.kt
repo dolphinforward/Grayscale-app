@@ -48,9 +48,40 @@ object ShizukuGranter {
     /**
      * Grant WRITE_SECURE_SETTINGS to [packageName] using Shizuku's shell
      * identity. Returns true on success.
+     *
+     * Primary path: run `pm grant ...` through Shizuku's shell. This is exactly
+     * what the ADB instructions do and is version-agnostic. Fallback: call
+     * `grantRuntimePermission` on the package-manager binder via reflection (in
+     * case `newProcess` is unavailable on a given Shizuku build).
      */
     fun grantWriteSecureSettings(packageName: String): Boolean {
         if (!hasPermission()) return false
+        if (grantViaShell(packageName)) return true
+        return grantViaBinder(packageName)
+    }
+
+    private fun grantViaShell(packageName: String): Boolean {
+        return try {
+            // Shizuku.newProcess is hidden API; reach it reflectively.
+            val newProcess = Shizuku::class.java.getDeclaredMethod(
+                "newProcess",
+                Array<String>::class.java,
+                Array<String>::class.java,
+                String::class.java
+            ).apply { isAccessible = true }
+
+            val cmd = arrayOf(
+                "pm", "grant", packageName,
+                "android.permission.WRITE_SECURE_SETTINGS"
+            )
+            val process = newProcess.invoke(null, cmd, null, null) as Process
+            process.waitFor() == 0
+        } catch (t: Throwable) {
+            false
+        }
+    }
+
+    private fun grantViaBinder(packageName: String): Boolean {
         return try {
             val pmBinder: IBinder = SystemServiceHelper.getSystemService("package")
             val wrapped = ShizukuBinderWrapper(pmBinder)

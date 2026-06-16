@@ -21,6 +21,13 @@
     <string name="need_permission">Grant WRITE_SECURE_SETTINGS first (see options below).</string>
     <string name="granted">Permission granted.</string>
     <string name="root_failed">Root grant failed (device not rooted?).</string>
+    <string name="shizuku_failed">Shizuku grant failed. Is Shizuku running and authorized?</string>
+
+    <string name="battery_title">Background reliability</string>
+    <string name="battery_explain">The app re-enables grayscale by watching the setting from a background service. If Android puts the app to sleep, it can miss when you turn grayscale off. Allow it to ignore battery optimization so the timer stays reliable.</string>
+    <string name="battery_ok">Battery optimization is off for this app — good.</string>
+    <string name="battery_optimized">Battery optimization is on — the timer may be unreliable.</string>
+    <string name="battery_button">Allow background activity</string>
 
     <string name="notif_running">Enforcing grayscale</string>
     <string name="notif_channel_name">Grayscale service</string>

@@ -79,6 +79,14 @@ class GrayscaleControllerTest {
     }
 
     @Test
+    fun canWriteSecureSettings_trueWhenPermissionHeld() {
+        // The functional probe should agree with the held permission - this is
+        // what makes the UI report "granted" right after a fresh grant.
+        assertTrue(GrayscaleController.canWriteSecureSettings(context))
+        assertTrue(PermissionManager.hasWriteSecureSettings(context))
+    }
+
+    @Test
     fun toggle_roundTrip_onOffOn() {
         GrayscaleController.enableGrayscale(context)
         assertTrue(GrayscaleController.isGrayscaleOn(context))

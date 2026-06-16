@@ -57,4 +57,25 @@ object GrayscaleController {
             false
         }
     }
+
+    /**
+     * Functional check for whether the app can actually write the secure
+     * settings, by performing an idempotent write of the current value.
+     *
+     * This is more reliable than `checkSelfPermission`: right after a fresh
+     * grant (ADB/Shizuku/root), the process-level permission cache can still
+     * report the permission as denied until the app restarts, whereas this
+     * write is evaluated against the real, current permission state in the
+     * system server and reflects the grant immediately.
+     */
+    fun canWriteSecureSettings(context: Context): Boolean {
+        return try {
+            val cr = context.contentResolver
+            val current = Settings.Secure.getInt(cr, KEY_ENABLED, 0)
+            Settings.Secure.putInt(cr, KEY_ENABLED, current)
+            true
+        } catch (e: SecurityException) {
+            false
+        }
+    }
 }

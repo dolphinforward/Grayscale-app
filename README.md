@@ -50,9 +50,24 @@ permission is held.
 1. Grant the permission (above).
 2. Flip the **Auto grayscale** switch on — the screen goes grayscale.
 3. Set the **re-enable delay** with the slider.
-4. From now on, if grayscale gets turned off, it returns after the delay.
+4. Allow **background activity** when prompted (see below) so the timer is reliable.
+5. From now on, if grayscale gets turned off, it returns after the delay.
 
 To stop, flip the switch off.
+
+## How it knows grayscale was turned off
+
+The foreground `GrayscaleService` registers a `ContentObserver` on the two
+display-daltonizer secure settings. When the system color-correction setting
+changes — for example you turn it off from Quick Settings — the observer fires,
+the service checks the value, and if grayscale is now off it schedules an exact
+alarm (`AlarmManager.setExactAndAllowWhileIdle`) to turn it back on after the
+chosen delay.
+
+This only works while the service process is alive, so the app also offers a
+**battery-optimization exemption** ("Allow background activity"). Without it,
+Android can sleep the app in Doze and miss the toggle-off, so the timer would
+not start. The app shows whether the exemption is currently granted.
 
 ## Building
 
