@@ -72,6 +72,20 @@ Requires JDK 17+ and the Android SDK (platform 34, build-tools 34.0.0).
 
 Output: `app/build/outputs/apk/debug/app-debug.apk`.
 
+## Tests
+
+`app/src/androidTest` contains an instrumentation test
+(`GrayscaleControllerTest`) that exercises the real toggle: it flips grayscale
+on and off and reads back the actual display-daltonizer secure settings on a
+device/emulator. It obtains `WRITE_SECURE_SETTINGS` by adopting the shell
+permission identity (`UiAutomation.adoptShellPermissionIdentity`), the same
+capability the app gets via ADB/Shizuku/root in production, and restores the
+original settings afterwards.
+
+The CI `instrumentation-test` job boots an Android emulator (API 30) and runs
+it via `./gradlew connectedDebugAndroidTest`. Run it locally against a
+connected device/emulator the same way.
+
 ## Project layout
 
 | Path | Purpose |
